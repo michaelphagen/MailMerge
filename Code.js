@@ -88,7 +88,7 @@ function getVars(){
 
 // This function is called when the "Test Email" menu item is selected.
 // Creates an email for the first row of the spreadsheet and puts it in the user's drafts folder.
-function prepareEmail(headers,vars) {
+function prepareEmail(headers,vars,html) {
     var fieldTo=vars[headers.indexOf("To")];
     var fieldCC=vars[headers.indexOf("CC")];
     var fieldBCC=vars[headers.indexOf("BCC")];
@@ -97,8 +97,7 @@ function prepareEmail(headers,vars) {
     var replacementHeaders=headers.slice(headers.indexOf("Subject")+1);
     var replacementVars=vars.slice(headers.indexOf("Subject")+1);
     var replacements=makeDict(replacementHeaders,replacementVars);
-    var body=DocumentApp.getActiveDocument().getBody().getText();
-    var html=doc_to_html(DocumentApp.getActiveDocument().getId());
+    var body=DocumentApp.getActiveDocument().getBody().getText();    
     console.log(html);
     var emailBody = body.replace(/{{\w+}}/g, function(all) {
         return replacements[all];
@@ -114,7 +113,9 @@ function testEmail() {
     var data = sheet.getRange(1, 1, 2, sheet.getLastColumn()).getValues();
     var headers=data[0];
     var vars=data[1];
-    [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars);
+    //Get HTML Body now to avoid rate limiting
+    var html=doc_to_html(DocumentApp.getActiveDocument().getId());
+    [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
     GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
 }
 
@@ -122,9 +123,11 @@ function sendEmail() {
     var sheet = getSpreadSheet().getSheets()[0];;
     var data = sheet.getDataRange().getValues();
     var headers=data[0];
+    //Get HTML Body now to avoid rate limiting
+    var html=doc_to_html(DocumentApp.getActiveDocument().getId());
     for (var i = 1; i < data.length; i++) {
         var vars=data[i];
-        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars);
+        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
         GmailApp.sendEmail(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
     }
 }
@@ -133,9 +136,11 @@ function createDrafts(){
     var sheet = getSpreadSheet().getSheets()[0];;
     var data = sheet.getDataRange().getValues();
     var headers=data[0];
+    //Get HTML Body now to avoid rate limiting
+    var html=doc_to_html(DocumentApp.getActiveDocument().getId());
     for (var i = 1; i < data.length; i++) {
         var vars=data[i];
-        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars);
+        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
         GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
     }
 }
