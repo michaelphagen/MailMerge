@@ -98,7 +98,6 @@ function prepareEmail(headers,vars,html) {
     var replacementVars=vars.slice(headers.indexOf("Subject")+1);
     var replacements=makeDict(replacementHeaders,replacementVars);
     var body=DocumentApp.getActiveDocument().getBody().getText();    
-    console.log(html);
     var emailBody = body.replace(/{{\w+}}/g, function(all) {
         return replacements[all];
     });
@@ -115,8 +114,8 @@ function testEmail() {
     var vars=data[1];
     //Get HTML Body now to avoid rate limiting
     var html=doc_to_html(DocumentApp.getActiveDocument().getId());
-    [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
-    GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
+    [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,newhtml]=prepareEmail(headers,vars,html);
+    GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: newhtml});
 }
 
 function sendEmail() {
@@ -127,8 +126,8 @@ function sendEmail() {
     var html=doc_to_html(DocumentApp.getActiveDocument().getId());
     for (var i = 1; i < data.length; i++) {
         var vars=data[i];
-        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
-        GmailApp.sendEmail(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
+        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,newhtml]=prepareEmail(headers,vars,html);
+        GmailApp.sendEmail(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: newhtml});
     }
 }
 
@@ -140,8 +139,8 @@ function createDrafts(){
     var html=doc_to_html(DocumentApp.getActiveDocument().getId());
     for (var i = 1; i < data.length; i++) {
         var vars=data[i];
-        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,html]=prepareEmail(headers,vars,html);
-        GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: html});
+        [fieldTo,fieldCC,fieldBCC,fieldReplyTo,fieldSubject,emailBody,newhtml]=prepareEmail(headers,vars,html);
+        GmailApp.createDraft(fieldTo, fieldSubject, emailBody, {cc: fieldCC, bcc: fieldBCC, replyTo: fieldReplyTo, htmlBody: newhtml});
     }
 }
 
